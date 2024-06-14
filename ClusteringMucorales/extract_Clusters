@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Verificar que se proporcione un argumento (nombre del archivo)
+if [ $# -ne 1 ]; then
+    echo "Uso: $0 <nombre_del_archivo>"
+    exit 1
+fi
+
+# Asignar el nombre del archivo proporcionado como argumento
+archivo="$1"
+
+# Variable para almacenar el nombre del cluster actual
+cluster_name=""
+
+# Iterar sobre cada línea del archivo
+while IFS= read -r line; do
+    # Verificar si la línea comienza con ">Cluster"
+    if [[ $line == ">Cluster"* ]]; then
+        # Extraer el nombre del cluster
+        cluster_name=$(echo "$line" | cut -d' ' -f2)
+    else
+        # Extraer el ID del formato ">123456..."
+        id=$(echo "$line" | awk -F'>' '{print $2}' | sed 's/\.\.\..*//')
+        # Imprimir "Cluster" seguido del número de cluster y el ID separados por coma
+        echo "Cluster $cluster_name, $id"
+    fi
+done < "$archivo"
+

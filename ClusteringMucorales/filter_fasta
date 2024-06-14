@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Verificar si se proporcionan los argumentos esperados
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <archivo_todas_las_secuencias.fasta>"
+    exit 1
+fi
+
+# Asignar el nombre del archivo a la variable correspondiente
+archivo_todas_las_secuencias="$1"
+
+# Verificar si el archivo existe
+if [ ! -f "$archivo_todas_las_secuencias" ]; then
+    echo "El archivo $archivo_todas_las_secuencias no existe."
+    exit 1
+fi
+
+# Procesar el archivo línea por línea
+while IFS= read -r line; do
+    # Verificar si la línea es un encabezado fasta
+    if [[ $line =~ ^\>.+ ]]; then
+        # Extraer el ID del encabezado fasta
+        id=$(echo "$line" | cut -d"|" -f3)
+        # Imprimir el nuevo encabezado fasta
+        echo ">$id"
+    else
+        # Imprimir la secuencia
+        echo "$line"
+    fi
+done < "$archivo_todas_las_secuencias"
+
