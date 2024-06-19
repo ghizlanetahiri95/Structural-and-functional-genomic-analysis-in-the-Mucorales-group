@@ -2,14 +2,18 @@
 title: "Analsis_Estadistico_TFM_GTZ"
 author: "Ghizlane Tahiri"
 date: '2024-06-19'
-output: html_document
+output: 
+  html_document:
+    toc: true
+---
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Librrerías necesarias 
+# Librrerías necesarias 
+
 ```{r}
 #install.packages("dunn.test")
 library(ggplot2)
@@ -26,9 +30,9 @@ getwd()
 ```
 
 
-#Analisis estadístico del estudio evolutivo de genes dimórficos, específicos de micelio y de levadura.
+# 1-Analisis estadístico del estudio evolutivo de genes dimórficos, específicos de micelio y de levadura.
 
-##Obtención de los datos
+## Obtención de los datos
 ```{r}
 #cargar los datos
 
@@ -37,7 +41,7 @@ data_conser <- read.csv("Datos_conservacion_Lev_Mic_Dim.csv", sep=";")
 print(data_conser)
 
 ```
-##Aplicación del test estadítico
+## Aplicación del test estadítico
 Se van a comparar los organismos dimórficos frente a los no dimórficos en cuanto a composición de genes específicos de levadura, de micelio, y aquellos procedentes de clústeres dimórficos. 
 Se va a utilizar el test de Wilcox
 ```{r}
@@ -59,7 +63,7 @@ print(wilcox_dim)
 ```
 Sólo sale significativo al comparar los dimórficos frente a los no dimórficos en el caso de tomar en cuenta la variable de la composicón de clústeres dimórficos.
 
-##Representación gráfica
+## Representación gráfica
 
 ```{r}
 # Definir una paleta de colores personalizada
@@ -92,9 +96,9 @@ grid.arrange(p1_lev, p2_mic, p3_dim, ncol = 2)
 
 ```
 
-#Análisis del contenido GC de las Regiones Intergénicas de genes H2H dimórficos.
-
-##Obtención de los datos
+# 2-Análisis del contenido GC de las Regiones Intergénicas de genes H2H dimórficos.
+ 
+## Obtención de los datos
 
 ```{r}
 #datos del contenido GC de los promotores bidereccionales de Levadura, Micelio y los normales o aleatorios en el genoma de Mucor lusitanicus.
@@ -106,7 +110,7 @@ data_gc_dim$Tipo <- as.factor(data_gc_dim$Tipo)
 print(data_gc_dim)
 
 ```
-##Prueba estadística del ANOVA
+## Prueba estadística del ANOVA
 
 Como hay tres grupos, genes de micelio, de levadura y los constitutivos, se va a realizar el test ANOVA.
 
@@ -118,7 +122,7 @@ modelo_anova <- aov(GC_Content ~ Tipo, data = data_gc_dim)
 summary(modelo_anova)
 
 ```
-###Prueba de la normalidad 
+### Prueba de la normalidad 
 
 Se van a analizar los residuos para comprobar las condiciones iniciales del ANOVA: la normalidad y homogeneidad de varianzas:
 #### Análisis mediante qqplot:
@@ -134,21 +138,21 @@ qqnorm(residuos)
 qqline(residuos)
 
 ```
-####Histograma de los residuos
+#### Histograma de los residuos
 
 No parece haber una distribución normal de los residuos. 
 ```{r}
 # Histograma de los residuos
 hist(residuos, breaks = 20, main = "Histograma de Residuos")
 ```
-####Prueba de Shapiro-Wilk para normalidad de los residuos
+#### Prueba de Shapiro-Wilk para normalidad de los residuos
 El pvalor es inferior a 0.05. Se rechaza la H0 de que la muestra proviene de una pobalción normalmente distribuida.
 ```{r}
 
 shapiro.test(residuos)
 
 ```
-###Prueba de Levene para homogeneidad de varianzas
+### Prueba de Levene para homogeneidad de varianzas
 El P valor es superior a 0.05. No se rechaza de la H0. 
 ```{r}
 levene_test <- leveneTest(GC_Content ~ Tipo, data = data_gc_dim)
@@ -157,7 +161,7 @@ print(levene_test)
 ```
 No se encontraron diferencias significativas en la variabilidad de los grupos. El valor de p es 0.8967, lo que está muy por encima del umbral de significancia de 0.05. Por lo tanto, no rechaza la hipótesis nula de homogeneidad de varianzas.
 
-##Prueba de Kruskal-Wallis
+## Prueba de Kruskal-Wallis
 Como no se cumple la condición de la normalidad, se va a utilizar otro test para determinar si los tres grupos presentan diferencias significativas en su contenido GC:
 
 ```{r}
@@ -171,18 +175,18 @@ print(resultado_kruskal)
 ```
 El p-valor es superior a 0.05. No se rechaza la H0. No hay diferencias significativas entre las medianas del contenido GC de genes de micelio, de levadura y los constitutivos. 
 
-#Análisis estadístico de las diferencias en las longitudes de las Regiones Intergénicas de genes H2H dimórficos:
+# 3-Análisis estadístico de las diferencias en las longitudes de las Regiones Intergénicas de genes H2H dimórficos:
 
-##Obtención de los datos
+## Obtención de los datos
 
 ```{r}
 #datos del contenido GC de los promotores bidereccionales de Levadura, Micelio y los normales o aleatorios en el genoma de Mucor lusitanicus.
 data_len_dim <- read.csv("df_distribucion_longitudes.csv", sep = ";")
 data_len_dim$Tipo <- as.factor(data_len_dim$Tipo)
 #Imprimer los datos
-print(data_len_dim)
+print(head(data_len_dim))
 ```
-##Comprobacion de la normalidad
+## Comprobacion de la normalidad
 
 Prueba de Shapiro-Wilk por tipo
 ```{r}
@@ -193,7 +197,7 @@ print(shapiro_results)
 ```
 Dado que los datos de Levadura no siguen una distribución normal según la prueba de Shapiro-Wilk, sería más apropiado utilizar pruebas no paramétricas para comparar las longitudes entre Levadura y Micelio. Una alternativa sería la prueba de Wilcoxon-Mann-Whitney.
 
-##Prueba de igualdad de varianzas 
+## Prueba de igualdad de varianzas 
 Prueba de Levene para igualdad de varianzas entre 'Levadura' y 'Micelio'
 ```{r}
 levene_test <- leveneTest(longitud ~ Tipo, data = data_len_dim)
@@ -203,7 +207,7 @@ print(levene_test)
 En este caso, el valor p obtenido es 0.6933, lo cual indica que no hay suficiente evidencia para rechazar H0.
 Esto significa que no podemos concluir que las varianzas de las longitudes sean diferentes entre Levadura y Micelio.
 
-##Prueba estadística Wilcoxon-Mann-Whitney
+## Prueba estadística Wilcoxon-Mann-Whitney
 
 Realizar la prueba de Wilcoxon-Mann-Whitney (U de Mann-Whitney) para determinar si hay diferencias entre los promotores bidereccionales o regiones intergénicas de genes H2H de levadura y de micelio.
 
@@ -216,12 +220,12 @@ print(wilcox_test)
 ```
 El valor p es mayor que el nivel de significancia común de 0.05. No hay suficiente evidencia para rechazar la hipótesis nula de que las medianas de los dos grupos son iguales. No hay diferencia en la mediana de las longitudes entre los grupos Levadura y Micelio.
 
-#Analisis estádistico del contenido GC de los genes H2H de todos los hongos de este estudio.
+# 4-Analisis estádistico del contenido GC de los genes H2H de todos los hongos de este estudio.
 
 ```{r}
 # Cargar los datos
 datos_gc_otherfungi <- read.csv("df_contenidoGC_h2h_random_fungi.csv", sep = ";")
-print(datos_gc_otherfungi)
+print(head(datos_gc_otherfungi))
 
 # Lista de pares de grupos corregida
 pares <- list(
@@ -245,7 +249,7 @@ pares <- list(
 
 
 ```
-##Función para realizar la comparación
+## Función para realizar la comparación
 ```{r}
 
 perform_comparison <- function(organismo1, organismo2, data) {
@@ -278,9 +282,9 @@ for (par in pares) {
 ```
 
 
-#Analisis estádistico de las longitudes de las regiones intergénicas de los genes H2H de todos los hongos de este estudio.
+# 5-Analisis estádistico de las longitudes de las regiones intergénicas de los genes H2H de todos los hongos de este estudio.
 
-##Obtención de los datos
+## Obtención de los datos
 
 ```{r}
 #datos
@@ -288,14 +292,14 @@ for (par in pares) {
 data_len_otherfungi <- read.csv("df_longitudes_IR_fungi.csv", sep = ";")
 
 #Imprimer los datos
-print(data_len_otherfungi)
+print(head(data_len_otherfungi))
 
 # Asegurarse de que 'Organismo' sea un factor
 data_len_otherfungi$Organismo <- as.factor(data_len_otherfungi$Organismo)
 
 ```
 
-##Prubea estadística ANOVA
+## Prubea estadística ANOVA
 
 ```{r}
 # Realizar ANOVA
@@ -305,9 +309,9 @@ modelo_anova <- aov(longitud ~ Organismo, data = data_len_otherfungi)
 summary(modelo_anova)
 
 ```
-##Comproabación de condiciones para realizar el ANOVA
+## Comproabación de condiciones para realizar el ANOVA
 
-###Verificacion de la normalidad de los residuos
+### Verificacion de la normalidad de los residuos
 No parece haber normalidad.
 
 ```{r}
@@ -320,14 +324,14 @@ qqnorm(residuos)
 qqline(residuos)
 
 ```
-####Histograma de los residuos
+#### Histograma de los residuos
 ```{r}
 
 hist(residuos, breaks = 20, main = "Histograma de Residuos")
 
 ```
 
-###Verficación de la normalidad mediante la prueba de Kolmogorov-Smirnov
+### Verficación de la normalidad mediante la prueba de Kolmogorov-Smirnov
 
 Dado que el tamaño de la muestra es muy grande se va a usar la prueba de Kolmogorov-Smirnov.
 
@@ -339,7 +343,7 @@ print(resultado_ks)
 ```
 Este resultado sugiere que los residuos no siguen una distribución normal.
 
-##Homogeneidad de varianzas
+## Homogeneidad de varianzas
 
 Prueba de Levene para homogeneidad de varianzas.
 
@@ -349,7 +353,7 @@ print(levene_test)
 
 ```
 Los datos no cumplen con las suposiciones de homogeneidad de varianzas y normalidad de los residuos para realizar un ANOVA paramétrico.
-##Prueba estadística de Kruskal-Wallis
+## Prueba estadística de Kruskal-Wallis
 
 Se va a considerar utilizar una prueba no paramétrica, esto es, Prueba de Kruskal-Wallis: Para comparar medianas entre más de dos grupos.
 
@@ -365,7 +369,7 @@ EL p valor es menor que 2.2exp-16
 Se rechaza la hipótesis nula: En base a este resultado, se rechaza la hipótesis nula de que todas las medianas de los grupos son iguales.
 Los datos cumplen con los supuestos necesarios para la Prueba de Kruskal-Wallis (muestras independientes y distribuciones similares).
 
-####Test de Dunn
+#### Test de Dunn
 Para determinar entre qué hongos hay diferencias se va a usar la prueba de Dunn. 
 ```{r}
 dunn_res <- dunn.test(data_len_otherfungi$longitud, g = data_len_otherfungi$Organismo, method = "bonferroni")
@@ -373,16 +377,16 @@ dunn_res <- dunn.test(data_len_otherfungi$longitud, g = data_len_otherfungi$Orga
 # Mostrar los resultados
 print(dunn_res)
 ```
-#Análisis estadístico para determinar las diferencias entre el contenido de islas CpG de los promotores bidereccionales de genes H2H y de genes no son H2H.
+# 6-Análisis estadístico para determinar las diferencias entre el contenido de islas CpG de los promotores bidereccionales de genes H2H y de genes no son H2H.
 
-##Obtención de los datos
+## Obtención de los datos
 ```{r}
 # Cargar los datos
 datos_islas_otherfungi <- read.csv("islasCpG_allfungi.csv", sep = ";")
-print(datos_islas_otherfungi)
+print(head(datos_islas_otherfungi))
 
 ```
-##Listas de organismos para hacer después las comparaciones:
+## Listas de organismos para hacer después las comparaciones:
 
 ```{r}
 # Lista de organismos únicos
@@ -418,7 +422,7 @@ pares <- list(
 
 ```
 
-##Prueba estadística de Wilcoxon rank
+## Prueba estadística de Wilcoxon rank
 Como hay casos dónde todos los datos son iguales, se va a introducir un código de errores.
 
 ```{r}
